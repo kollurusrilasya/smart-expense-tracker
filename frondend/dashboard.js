@@ -2,7 +2,10 @@
    FINIA — dashboard.js  (complete clean rewrite)
    ============================================================ */
 
-const API = 'http://localhost:3001/api';
+const RENDER_URL = 'https://smart-expense-tracker-1-9w25.onrender.com';
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3001/api'
+  : `${RENDER_URL}/api`;
 const token = () => localStorage.getItem('finia_token');
 const authHeaders = () => ({ 'Content-Type':'application/json', 'Authorization':'Bearer '+token() });
 

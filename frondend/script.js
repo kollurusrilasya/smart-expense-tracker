@@ -2,7 +2,14 @@
    FINIA — script.js — Auth page logic
    ============================================================ */
 
-const API = 'https://smart-expense-tracker-8957.onrender.com';
+/* Auto-detect backend URL:
+   - On localhost: uses local Express server
+   - On Vercel/any other host: uses the Render backend URL
+   Set VITE_API_URL or just update the renderUrl below with your Render URL */
+const RENDER_URL = 'https://smart-expense-tracker-1-9w25.onrender.com';
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3001/api'
+  : `${RENDER_URL}/api`;
 
 /* ── Theme ── */
 const themeToggle = document.getElementById('themeToggle');
