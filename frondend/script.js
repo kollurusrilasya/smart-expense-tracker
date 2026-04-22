@@ -2,7 +2,7 @@
    FINIA — script.js — Auth page logic
    ============================================================ */
 
-const API = 'http://localhost:3001/api';
+const API = 'https://smart-expense-tracker-8957.onrender.com';
 
 /* ── Theme ── */
 const themeToggle = document.getElementById('themeToggle');
