@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finia — Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-logo">
+      <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="20" fill="url(#lg1)"/>
+        <path d="M12 20 C12 14, 28 14, 28 20 C28 26, 12 26, 12 20Z" fill="white" opacity="0.9"/>
+        <circle cx="20" cy="20" r="4" fill="url(#lg2)"/>
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40">
+            <stop offset="0%" stop-color="#6EE7B7"/><stop offset="100%" stop-color="#3B82F6"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="0" y1="0" x2="10" y2="10">
+            <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EF4444"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="brand-name">Finia</span>
+    </div>
+    <button class="sidebar-close" id="sidebarClose">✕</button>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">A</div>
+    <div class="user-info">
+      <span class="user-name" id="sidebarUserName">Loading...</span>
+      <span class="user-email" id="sidebarUserEmail">...</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-section="overview" href="#">
+      <span class="nav-icon">📊</span><span>Overview</span>
+    </a>
+    <a class="nav-item" data-section="budget" href="#">
+      <span class="nav-icon">💰</span><span>Budget Setup</span>
+    </a>
+    <a class="nav-item" data-section="expenses" href="#">
+      <span class="nav-icon">📝</span><span>Add Expense</span>
+    </a>
+    <a class="nav-item" data-section="split" href="#">
+      <span class="nav-icon">👥</span><span>Friends & Groups</span>
+    </a>
+    <a class="nav-item" data-section="analytics" href="#">
+      <span class="nav-icon">📈</span><span>Analytics</span>
+    </a>
+    <a class="nav-item" data-section="network" href="#">
+      <span class="nav-icon">🕸</span><span>Network Graph</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="theme-row">
+      <span style="font-size:13px;color:var(--text-secondary)">Theme</span>
+      <button class="theme-toggle-small" id="themeToggle"><span id="themeIcon">🌙</span></button>
+    </div>
+    <div class="color-themes">
+      <div class="theme-dot active" data-color="emerald" style="background:linear-gradient(135deg,#6EE7B7,#3B82F6)"></div>
+      <div class="theme-dot" data-color="violet" style="background:linear-gradient(135deg,#A78BFA,#EC4899)"></div>
+      <div class="theme-dot" data-color="amber" style="background:linear-gradient(135deg,#F59E0B,#EF4444)"></div>
+      <div class="theme-dot" data-color="cyan" style="background:linear-gradient(135deg,#06B6D4,#6EE7B7)"></div>
+    </div>
+    <button class="btn-logout" id="logoutBtn">🚪 Sign Out</button>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="main-wrapper">
+  <header class="topbar">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <div class="topbar-title" id="topbarTitle">Overview</div>
+    <div class="topbar-actions">
+      <button class="action-btn" id="addExpenseQuick">＋ Expense</button>
+      <div class="user-avatar-sm" id="topbarAvatar">A</div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="section-overview">
+      <div class="section-header">
+        <h1 class="section-title">Financial Overview</h1>
+        <p class="section-sub">Your money at a glance</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card glass">
+          <div class="stat-icon" style="background:rgba(110,231,183,0.15)">💰</div>
+          <div class="stat-body">
+            <span class="stat-label">Monthly Budget</span>
+            <span class="stat-value" id="statBudgetVal">₹0</span>
+          </div>
+          <div class="stat-trend up">Budget</div>
+        </div>
+        <div class="stat-card glass">
+          <div class="stat-icon" style="background:rgba(239,68,68,0.15)">💸</div>
+          <div class="stat-body">
+            <span class="stat-label">Total Spent</span>
+            <span class="stat-value" id="statSpentVal">₹0</span>
+          </div>
+          <div class="stat-trend down" id="statSpentPct">0%</div>
+        </div>
+        <div class="stat-card glass">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15)">🏦</div>
+          <div class="stat-body">
+            <span class="stat-label">Remaining</span>
+            <span class="stat-value" id="statRemainingVal">₹0</span>
+          </div>
+          <div class="stat-trend up" id="statRemainingPct">0%</div>
+        </div>
+        <div class="stat-card glass">
+          <div class="stat-icon" style="background:rgba(167,139,250,0.15)">🎯</div>
+          <div class="stat-body">
+            <span class="stat-label">Total Saved</span>
+            <span class="stat-value" id="statSavingsVal">₹0</span>
+          </div>
+          <div class="stat-trend up">Savings</div>
+        </div>
+      </div>
+
+      <div class="budget-alert hidden" id="budgetAlert">
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-msg" id="alertMsg">Budget warning</span>
+        <button class="alert-close" onclick="document.getElementById('budgetAlert').classList.add('hidden')">✕</button>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <span class="chart-title">Category Distribution</span>
+            <span class="chart-badge">This Month</span>
+          </div>
+          <div class="chart-container"><canvas id="pieChart"></canvas></div>
+        </div>
+        <div class="chart-card glass wide">
+          <div class="chart-header">
+            <span class="chart-title">Spending Trend</span>
+            <div class="chart-tabs">
+              <button class="ctab active" data-chart="weekly">Weekly</button>
+              <button class="ctab" data-chart="monthly">Monthly</button>
+              <button class="ctab" data-chart="yearly">Yearly</button>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="lineChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="recent-card glass">
+        <div class="card-header">
+          <span class="card-title">Recent Transactions</span>
+          <button class="view-all-btn" data-section="expenses">View All</button>
+        </div>
+        <div class="expense-list" id="recentExpenses">
+          <div class="empty-state"><span>📭</span><p>No expenses yet</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BUDGET SETUP -->
+    <section class="section" id="section-budget">
+      <div class="section-header">
+        <h1 class="section-title">Budget Setup</h1>
+        <p class="section-sub">Configure your monthly budget</p>
+      </div>
+      <div class="budget-setup-card glass">
+        <div class="setup-step" id="step1">
+          <h2 class="step-title">💰 Set Monthly Budget</h2>
+          <div class="budget-input-big">
+            <span class="currency-symbol" id="currencySymbol">₹</span>
+            <input type="number" id="monthlyBudgetInput" placeholder="50000" class="big-input" min="0"/>
+          </div>
+          <button class="btn-primary" onclick="proceedToCategories()">Continue →</button>
+        </div>
+        <div class="setup-step hidden" id="step2">
+          <h2 class="step-title">🗂 Allocate Categories</h2>
+          <p class="step-sub">Enter % or amount for each category</p>
+          <div class="category-grid" id="categoryGrid"></div>
+          <div class="allocation-summary">
+            <div class="alloc-bar-wrapper">
+              <div class="alloc-bar-fill" id="allocBarFill"></div>
+            </div>
+            <div class="alloc-info">
+              <span id="allocPct">0%</span> allocated
+              <span class="alloc-remaining" id="allocRemaining"></span>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-secondary" onclick="goBackToStep1()">← Back</button>
+            <button class="btn-primary" onclick="saveBudget()">Save Budget 💾</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD EXPENSE -->
+    <section class="section" id="section-expenses">
+      <div class="section-header">
+        <h1 class="section-title">Add Expense</h1>
+        <p class="section-sub">Track your spending</p>
+      </div>
+      <div class="expense-layout">
+        <div class="expense-form-card glass">
+          <h3 class="form-heading">New Transaction</h3>
+          <form id="expenseForm">
+            <div class="form-group">
+              <label class="form-label">Description <span style="color:var(--text-muted);font-size:10px">(optional)</span></label>
+              <div class="input-wrapper">
+                <span class="input-icon">📝</span>
+                <input type="text" id="expDesc" class="form-input" placeholder="e.g. Lunch at café"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-icon" id="expCurrencyIcon">₹</span>
+                  <input type="number" id="expAmount" class="form-input" placeholder="0.00" min="0" step="0.01"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <div class="input-wrapper select-wrapper">
+                  <span class="input-icon">🏷</span>
+                  <select id="expCategory" class="form-input form-select">
+                    <option value="">Choose category</option>
+                    <option value="savings">💰 Savings</option>
+                    <option value="snacks">🍕 Snacks</option>
+                    <option value="entertainment">🎭 Entertainment</option>
+                    <option value="rent">🏠 Rent</option>
+                    <option value="bills">⚡ Bills</option>
+                    <option value="others">📦 Others</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📅</span>
+                <input type="date" id="expDate" class="form-input"/>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary">Add Expense ✨</button>
+          </form>
+        </div>
+        <div class="expense-list-card glass">
+          <div class="card-header">
+            <span class="card-title">All Expenses</span>
+            <select id="filterCategory" class="filter-select">
+              <option value="">All Categories</option>
+              <option value="savings">Savings</option>
+              <option value="snacks">Snacks</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="rent">Rent</option>
+              <option value="bills">Bills</option>
+              <option value="others">Others</option>
+            </select>
+          </div>
+          <div class="expense-list" id="allExpenses">
+            <div class="empty-state"><span>📭</span><p>No expenses yet</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRIENDS & GROUPS -->
+    <section class="section" id="section-split">
+      <div class="section-header">
+        <h1 class="section-title">Friends & Groups</h1>
+        <p class="section-sub">Track shared expenses and settle up smartly</p>
+      </div>
+
+      <div class="split-tabs">
+        <button class="stab active" data-stab="groups">🏕 Groups</button>
+        <button class="stab" data-stab="addexp">➕ Add Expense</button>
+        <button class="stab" data-stab="balances">⚖️ Balances</button>
+        <button class="stab" data-stab="activity">📋 Activity</button>
+      </div>
+
+      <!-- Groups tab -->
+      <div class="stab-panel active" id="stab-groups">
+        <div class="split-two-col">
+          <div class="glass sp-card">
+            <h3 class="sp-heading">Create Group</h3>
+            <div class="form-group">
+              <label class="form-label">Group Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🏷</span>
+                <input type="text" id="grpName" class="form-input" placeholder="Goa Trip, Flatmates…"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <div class="type-btn-grid" id="grpTypeGrid">
+                <button class="type-btn active" data-grptype="trip">✈️ Trip</button>
+                <button class="type-btn" data-grptype="home">🏠 Home</button>
+                <button class="type-btn" data-grptype="food">🍕 Food</button>
+                <button class="type-btn" data-grptype="party">🎉 Party</button>
+                <button class="type-btn" data-grptype="office">💼 Office</button>
+                <button class="type-btn" data-grptype="other">📦 Other</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Add Members</label>
+              <div class="friend-input-row">
+                <input type="text" id="grpMemberInput" class="form-input" placeholder="Member name"/>
+                <button type="button" class="btn-icon" id="addMemberBtn">＋</button>
+              </div>
+              <div class="friends-list" id="grpMembersList"></div>
+            </div>
+            <button class="btn-primary" id="createGroupBtn">Create Group 🚀</button>
+          </div>
+          <div class="glass sp-card">
+            <h3 class="sp-heading">Your Groups</h3>
+            <div id="groupsList"><div class="empty-state"><span>🏕</span><p>No groups yet</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Expense tab -->
+      <div class="stab-panel" id="stab-addexp">
+        <div class="split-two-col">
+          <div class="glass sp-card">
+            <h3 class="sp-heading">Log Group Expense</h3>
+            <div class="form-group">
+              <label class="form-label">Group</label>
+              <div class="input-wrapper select-wrapper">
+                <span class="input-icon">🏕</span>
+                <select id="seGroup" class="form-input form-select" onchange="onGroupSelect()">
+                  <option value="">Select group…</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description <span style="color:var(--text-muted);font-size:10px">(optional)</span></label>
+              <div class="input-wrapper">
+                <span class="input-icon">📝</span>
+                <input type="text" id="seDesc" class="form-input" placeholder="Hotel, Dinner, Tickets…"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-icon" id="seCurrIcon">₹</span>
+                  <input type="number" id="seAmount" class="form-input" placeholder="0.00" min="0" oninput="updateSplitPreview()"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Paid by</label>
+                <div class="input-wrapper select-wrapper">
+                  <span class="input-icon">👤</span>
+                  <select id="sePaidBy" class="form-input form-select">
+                    <option value="">Who paid?</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <div class="type-btn-grid">
+                <button class="type-btn active" data-secat="food">🍕 Food</button>
+                <button class="type-btn" data-secat="transport">🚗 Transport</button>
+                <button class="type-btn" data-secat="hotel">🏨 Hotel</button>
+                <button class="type-btn" data-secat="activity">🎯 Activity</button>
+                <button class="type-btn" data-secat="drinks">🍺 Drinks</button>
+                <button class="type-btn" data-secat="other">📦 Other</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Split Method</label>
+              <div class="method-btn-row">
+                <button class="method-btn active" data-method="equal">⚖️ Equal</button>
+                <button class="method-btn" data-method="custom">✏️ Custom %</button>
+                <button class="method-btn" data-method="exact">💰 Exact</button>
+                <button class="method-btn" data-method="exclude">🚫 Exclude</button>
+              </div>
+            </div>
+            <div id="splitMethodPanel"></div>
+            <button class="btn-primary" id="addGroupExpBtn">Add to Group 💸</button>
+          </div>
+          <div class="glass sp-card">
+            <h3 class="sp-heading">Split Preview</h3>
+            <div id="splitPreview"><div class="empty-state"><span>💡</span><p>Select a group and enter amount</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Balances tab -->
+      <div class="stab-panel" id="stab-balances">
+        <div class="form-group" style="max-width:280px;margin-bottom:20px">
+          <div class="input-wrapper select-wrapper">
+            <span class="input-icon">🏕</span>
+            <select id="balGroup" class="form-input form-select" onchange="renderBalances()">
+              <option value="">All groups</option>
+            </select>
+          </div>
+        </div>
+        <div class="bal-cards-row" id="balCardsRow"></div>
+        <div class="glass sp-card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <h3 class="sp-heading" style="margin:0">Simplified Settle-Up</h3>
+            <span class="smart-badge">Smart</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Minimum transactions to clear all debts.</p>
+          <div id="settleList"><div class="empty-state"><span>✅</span><p>All settled up!</p></div></div>
+        </div>
+        <div class="glass sp-card">
+          <h3 class="sp-heading">Per-Person Breakdown</h3>
+          <div id="perPersonList"><div class="empty-state"><span>👥</span><p>No data yet</p></div></div>
+        </div>
+      </div>
+
+      <!-- Activity tab -->
+      <div class="stab-panel" id="stab-activity">
+        <div class="activity-filter-row">
+          <select id="actGroup" class="filter-select" onchange="renderActivity()"><option value="">All groups</option></select>
+          <select id="actSort" class="filter-select" onchange="renderActivity()">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="high">Highest amount</option>
+            <option value="low">Lowest amount</option>
+          </select>
+        </div>
+        <div id="activityFeed"><div class="empty-state"><span>📋</span><p>No activity yet</p></div></div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="section" id="section-analytics">
+      <div class="section-header">
+        <h1 class="section-title">Analytics</h1>
+        <p class="section-sub">Deep insights into your spending</p>
+      </div>
+      <div class="analytics-grid">
+        <div class="chart-card glass">
+          <div class="chart-header"><span class="chart-title">Category Breakdown</span><span class="chart-badge">Bar</span></div>
+          <div class="chart-container"><canvas id="barChart"></canvas></div>
+        </div>
+        <div class="chart-card glass">
+          <div class="chart-header"><span class="chart-title">Monthly Trend</span><span class="chart-badge">12 Months</span></div>
+          <div class="chart-container"><canvas id="yearChart"></canvas></div>
+        </div>
+      </div>
+      <div class="progress-card glass">
+        <h3 class="card-title">Budget Progress by Category</h3>
+        <div class="progress-list" id="progressList"><div class="empty-state"><span>📊</span><p>Set up budget to see progress</p></div></div>
+      </div>
+    </section>
+
+
+    <!-- NETWORK GRAPH -->
+    <section class="section" id="section-network">
+      <div class="section-header">
+        <h1 class="section-title">Network Graph</h1>
+        <p class="section-sub">Interactive visualization of your budget, categories and expenses</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="net-controls glass">
+        <div class="net-ctrl-group">
+          <button class="net-btn active" id="netViewAll">🌐 All Nodes</button>
+          <button class="net-btn" id="netViewBudget">💰 Budget Flow</button>
+          <button class="net-btn" id="netViewExpenses">💸 Expenses</button>
+          <button class="net-btn" id="netViewSavings">🎯 Savings</button>
+          <button class="net-btn" id="netViewGroups">👥 Groups</button>
+        </div>
+        <div class="net-ctrl-group">
+          <button class="net-btn" id="netPhysics">⚡ Physics On</button>
+          <button class="net-btn" id="netFitBtn">⛶ Fit View</button>
+          <button class="net-btn" id="netResetBtn">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="net-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#6EE7B7"></div><span>Budget</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3B82F6"></div><span>Category</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div><span>Expense</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#A78BFA"></div><span>Savings</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div><span>Over Budget</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#EC4899"></div><span>Group</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#06B6D4"></div><span>Member</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F97316"></div><span>Group Expense</span></div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="net-canvas-wrap glass">
+        <canvas id="networkCanvas"></canvas>
+        <!-- Tooltip -->
+        <div class="net-tooltip hidden" id="netTooltip"></div>
+        <!-- Info panel -->
+        <div class="net-info-panel hidden" id="netInfoPanel">
+          <button class="net-info-close" id="netInfoClose">✕</button>
+          <div class="net-info-content" id="netInfoContent"></div>
+        </div>
+        <!-- Mini stats -->
+        <div class="net-mini-stats" id="netMiniStats"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Quick Add Modal -->
+<div class="modal-overlay hidden" id="quickModal">
+  <div class="modal glass">
+    <div class="modal-header">
+      <h3>Quick Add Expense</h3>
+      <button class="modal-close" id="quickModalClose">✕</button>
+    </div>
+    <form id="quickExpenseForm">
+      <div class="form-group">
+        <label class="form-label">Description <span style="color:var(--text-muted);font-size:10px">(optional)</span></label>
+        <input type="text" id="qDesc" class="form-input" placeholder="What did you spend on?" style="padding-left:14px"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input type="number" id="qAmount" class="form-input" placeholder="0.00" style="padding-left:14px"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="qCategory" class="form-input form-select" style="padding-left:14px">
+            <option value="snacks">🍕 Snacks</option>
+            <option value="entertainment">🎭 Entertainment</option>
+            <option value="rent">🏠 Rent</option>
+            <option value="bills">⚡ Bills</option>
+            <option value="savings">💰 Savings</option>
+            <option value="others">📦 Others</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Add ✨</button>
+    </form>
+  </div>
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>
