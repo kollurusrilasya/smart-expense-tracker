@@ -120,6 +120,17 @@ async function start() {
 
 start();
 
+/* Keep-alive ping every 4 minutes — prevents Render sleep + keeps Aura connection warm */
+setInterval(async () => {
+  try {
+    const { runQuery } = require('./db');
+    await runQuery('RETURN 1 AS ping');
+    console.log('[Keep-alive] Neo4j ping OK');
+  } catch(e) {
+    console.warn('[Keep-alive] Neo4j ping failed:', e.message);
+  }
+}, 4 * 60 * 1000);
+
 process.on('SIGINT', async () => {
   await driver.close();
   process.exit(0);
